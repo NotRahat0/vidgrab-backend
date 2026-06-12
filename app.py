@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import yt_dlp
-import re
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=False)
 
 SUPPORTED_DOMAINS = [
     "youtube.com", "youtu.be",
@@ -18,6 +17,13 @@ SUPPORTED_DOMAINS = [
 
 def is_valid_url(url):
     return any(domain in url for domain in SUPPORTED_DOMAINS)
+
+@app.after_request
+def add_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 @app.route("/")
 def index():
